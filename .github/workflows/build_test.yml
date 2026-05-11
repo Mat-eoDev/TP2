@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-# Initialiser un job pour les tests
 jobs:
   build_test:
     runs-on: ubuntu-latest
@@ -36,7 +35,6 @@ jobs:
           only-severities: critical,high
           exit-code: true
 
-  # Nouveau job qui ne s'exécute que si build_test a réussi
   deploy:
     runs-on: ubuntu-latest
     # Add a dependency to the build job
@@ -46,5 +44,5 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy
-        run: echo "Deploying application..."
+      - name: Build the stack
+        run: docker compose up -d

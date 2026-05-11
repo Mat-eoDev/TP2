@@ -1,0 +1,36 @@
+name: Build and Test Application
+# Controls when the action will run.
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  # Triggers the workflow on push or pull request events but only for the master branch
+
+# Initialiser un job pour les tests
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build_test:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Créer un step qui va build les images
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image for scanning
+        run: docker build -t my-app:1.0.0 -f ./Dockerfile .
+
+      # Créer un step qui vérifie ces images
+      - name: Docker Scout Scan
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: my-app:1.0.0
+          file: ./Dockerfile
+          only-severities: critical,high
+          exit-code: true

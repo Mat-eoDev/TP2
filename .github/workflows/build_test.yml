@@ -5,16 +5,12 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  # Triggers the workflow on push or pull request events but only for the main branch
 
 # Initialiser un job pour les tests
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build_test:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Créer un step qui va build les images
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,7 +27,6 @@ jobs:
       - name: Build image for scanning
         run: docker build -t my-app:1.0.0 -f ./Dockerfile .
 
-      # Créer un step qui vérifie ces images
       - name: Docker Scout Scan
         uses: docker/scout-action@v1
         with:
@@ -40,3 +35,16 @@ jobs:
           file: ./Dockerfile
           only-severities: critical,high
           exit-code: true
+
+  # Nouveau job qui ne s'exécute que si build_test a réussi
+  deploy:
+    runs-on: ubuntu-latest
+    # Add a dependency to the build job
+    needs: build_test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        run: echo "Deploying application..."
